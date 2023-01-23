@@ -7,6 +7,7 @@ class App extends Component {
 
     this.state = {
       monsters: [],
+      searchField: '',
     }
   }
 
@@ -22,27 +23,31 @@ class App extends Component {
       )
     })
   }
+  
+  /**
+   * We need to move that anonymous function here,
+   * because it doesn't get stored in memory, 
+   * causing React to redefine them every ttime the
+   * component re-renders.
+   */
+  onSearchChange = (event) => {
+    const searchField = event.target.value.toLowerCase()
+    this.setState({ searchField })
+  }
 
   render() {
+    // This makes the code more human readable
+    const { monsters, searchField } = this.state
+    const { onSearchChange } = this
+
+    const filteredMonsters = monsters.filter(monster => {
+      return monster.name.toLowerCase().includes(searchField)
+    })
+
     return (
       <div className="App">
-        <input type="search" placeholder="search monsters" className="search-box" onChange={(event) => {
-          const searchString = event.target.value.toLowerCase()
-          console.log(!!event.target.value)
-          let filteredMonsters = []
-
-          if (!searchString) {
-            filteredMonsters = this.state.monsters
-          } else {
-            filteredMonsters = this.state.monsters.filter(monster => {
-              return monster.name.toLowerCase().includes(searchString)
-            })
-
-          }
-
-          this.setState({ monsters: filteredMonsters })
-        }}/>
-        {this.state.monsters.map(monster => {
+        <input type="search" placeholder="search monsters" className="search-box" onChange={onSearchChange}/>
+        {filteredMonsters.map(monster => {
           return (
             <div key={monster.id}>
               <h1>{monster.name}</h1>
